@@ -33,7 +33,7 @@ DMM.comグループでは現在60以上の事業を展開しており、数多�
 ### システム構成
 
 DMMでは、それぞれのサービスの監視にはDatadog, NewRelic, StatusCakeなどを利用しています。
-これらのサービスから情報を集約し、Statuspageに反映させる仕組みを構築しました。 以下のようなイメージです。
+これらのサービスからアラートを集約し、Statuspageに反映させる仕組みを構築しました。 以下のようなイメージです。
 
 ![Internal Status Page](img/system_overview.png)
 
