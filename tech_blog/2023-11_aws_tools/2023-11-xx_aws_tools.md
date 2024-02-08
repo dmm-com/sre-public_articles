@@ -38,7 +38,7 @@ AWSでは複数のAWSアカウントを組織単位で管理するためのサ�
 ]
 ```
 
-Step Functionsで作るWorkflowは以下のようになります。設定ファイルに記載された対象アカウントをStep FunctionsのMapステートメントで読み出し並列実行します。今回のユースケースでは対象データが大量になることはないですが、StepFunction + Lambdaの組み合わせは、大規模な並列データ処理のためのソリューションとして注目しています。今後他のユースケースでも活用できそうです。
+Step Functionsで作るWorkflowは以下のようになります。設定ファイルに記載された対象アカウントをStep FunctionsのMapステートメントで読み出し並列実行します。今回のユースケースでは対象データが大量になることはないですが、StepFunctions + Lambdaの組み合わせは、大規模対応可能なデータ処理のためのソリューションのひとつとして注目しています。今後他のユースケースでも活用できそうです。
 
 ![screenshot_workflow.png](screenshot_workflow.png)
 
