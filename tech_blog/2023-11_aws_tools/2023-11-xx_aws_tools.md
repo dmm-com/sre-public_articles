@@ -44,7 +44,7 @@ Step Functionsで作るWorkflowは以下のようになります。設定ファ�
 
 ## コストの取得
 AWSのコスト情報は、AWS Cost Explorer APIを使って取得することができます。AWS Organizationsのメンバーアカウントからデータを取得するには LINKED_ACCOUNTというパラメータにAccount Idを
-取得するように実装します。Lambdaコードは以下のようになります。帰ったレスポンスを整形して通知します。
+取得するように実装します。Lambdaコードは以下のようになります。返却されたレスポンスを整形して通知します。
 
 ```
 def get_cost_report(account_id, start_date, end_date, filter_tags_condition):
