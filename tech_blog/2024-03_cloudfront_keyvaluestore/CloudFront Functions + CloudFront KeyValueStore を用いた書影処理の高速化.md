@@ -10,11 +10,11 @@
 
 まず、 CloudFront Functions と Lambda@Edge の違いを明確にしようと思います。
 
-|  | CloudFront Functions | Lambda@Edge |
-| --- | --- | --- |
-| ランタイム | cloudfront-js (https://docs.aws.amazon.com/ja_jp/AmazonCloudFront/latest/DeveloperGuide/functions-javascript-runtime-20.html#writing-functions-javascript-features-restricted-features-20) | Node.js, Python, Ruby, Java, .NET, Amazon Linux(RustやGoなど用に) |
-| 実行速度 | 非常に高速である | 複雑なタスクを実行できる分、比較的にレイテンシーが大きい |
-| 用途と複雑性 | URLの書き換えなど、非常に小規模で高速な実行が必要な用途に向いている | より複雑なアプリケーションロジックをエッジで実行できる |
+|  | CloudFront Functions                                                                                                                                                                                                       | Lambda@Edge |
+| --- |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| --- |
+| ランタイム | cloudfront-js ([JavaScriptの一部の機能しかサポートしていません](https://docs.aws.amazon.com/ja_jp/AmazonCloudFront/latest/DeveloperGuide/functions-javascript-runtime-20.html#writing-functions-javascript-features-restricted-features-20)) | Node.js, Python, Ruby, Java, .NET, Amazon Linux(RustやGoなど用に) |
+| 実行速度 | 非常に高速である                                                                                                                                                                                                                   | 複雑なタスクを実行できる分、比較的レイテンシーが大きい |
+| 用途と複雑性 | URLの書き換えなど、非常に小規模で高速な実行が必要な用途に向いている                                                                                                                                                                                        | より複雑なアプリケーションロジックをエッジで実行できる |
 
 電子書籍事業部で使用されている書影画像の非公開チェックは「 CloudFront で配信されている書影画像に対して、まだ公開していない作品の場合は now printing と呼ばれる画像を代わりに表示する」というシンプルな機能です。シンプルな機能であり、かつ高速にコンテンツを配信したいため、本来 CloudFront Functions の方が適しています。
 
@@ -22,8 +22,7 @@
 
 作品の公開日時はAuroraに保存されており、非公開チェックの処理は何かしらの手段でこの公開日時情報にアクセスする必要があります。
 
-直接Auroraにアクセスしても、ElastiCacheやS3に保存してそこから取得しても CloudFront Functions の[コンピューティング使用率制限](https://docs.aws.amazon.com/ja_jp/AmazonCloudFront/latest/DeveloperGuide/cloudfront-function-restrictions.html)を簡単に超えてしまいます。
-
+直接AuroraやElastiCache、S3等にアクセスできたとしても、 CloudFront Functions の[コンピューティング使用率制限](https://docs.aws.amazon.com/ja_jp/AmazonCloudFront/latest/DeveloperGuide/cloudfront-function-restrictions.html)を簡単に超えてしまいます。
 そのため、CloudFront KeyValueStore がリリースされるまでは、CloudFront Functions では実装できませんでした。
 
 # CloudFront KeyValueStore の何が嬉しいのか？
@@ -34,7 +33,7 @@ CloudFront Functions は高速に実行できる代わりに Lambda@Edge より�
 
 今までは CloudFront Functions から使用できる保存場所がなかったため、Lambda@Edge を使わざるを得ないことも多かったと思います。
 
-CloudFront KeyValueStore という CloudFront Functions から呼び出せる非常に低レイテンシーな KVS がリリースされたおかげで、この問題は解決できるようになりました。
+CloudFront KeyValueStore という CloudFront Functions から呼び出せる非常に低レイテンシーな KVS がリリースされたおかげで、この問題を解決できるようになりました。
 
 # CloudFront KeyValueStore について知っておいた方が良いこと
 
@@ -232,7 +231,7 @@ function parseDateTime(dateTimeString) {
 
 電子書籍事業部のAWSはTerraform管理されているため、今回もTerraformで各種リソースを定義しましたが、ここで１つ大きな落とし穴があります。
 
-現時点 Terraform の CloudFront KeyValueStore の対応はまだ不完全なため、リソースを作成することは可能ですが、「CloudFront Functions と CloudFront KeyValueStore の関連付け」を定義できません。
+2024/03/15時点 Terraform の CloudFront KeyValueStore の対応はまだ不完全なため、リソースを作成することは可能ですが、「CloudFront Functions と CloudFront KeyValueStore の関連付け」を定義できません。
 
 リソースを Terraform で作成してから、AWS コンソールから手動で関連付けを設定しましたが、 `terraform apply` を実行すると関連付けが消されるため、CloudFront Functions から CloudFront KeyValueStore にアクセスできなくなります。
 
@@ -274,6 +273,8 @@ CloudFront KeyValueStore は ETag の仕組みを使って、リクエストを�
 Aurora から公開日時情報を CloudFront KeyValueStore に取り込むバッチを10分毎に動かすようにしていましたが、バッチの実行が10分以内に終了しないことがあり、その場合は2つのバッチが同時に実行されるタイミングが発生します。
 
 CloudFront KeyValueStore へのリクエストは正しい順番で実行しないとエラーが発生するため、更新バッチが複数同時に動作するとエラーになってしまいます。
+
+そのため、バッチの実行間隔を前回のバッチが確実に実行完了している20分間に増やしました。
 
 ## Golangから使う場合の情報がとにかく少ない
 
