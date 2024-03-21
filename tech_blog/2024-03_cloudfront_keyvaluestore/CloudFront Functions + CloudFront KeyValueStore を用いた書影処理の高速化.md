@@ -1,8 +1,8 @@
-# CloudFront Functions + CloudFront KeyValueStore を用いた書影処理の高速化
+# CloudFront Functions + CloudFront KeyValueStore を用いた商品のパッケージ画像処理の高速化
 
 こんにちは。ITインフラ本部 SRE部の周です。現在電子書籍事業部でAWS関連の業務を担当しています。
 
-その一環として、Lambda@Edge で実装されていた書影画像の非公開チェック機能を高速化させるため、
+その一環として、Lambda@Edge で実装されていた商品のパッケージ画像の非公開チェック機能を高速化させるため、
 
 新しく CloudFunctions で実装することを行いました。
 
@@ -16,7 +16,7 @@
 | 実行速度 | 非常に高速である                                                                                                                                                                                                                   | 複雑なタスクを実行できる分、比較的レイテンシーが大きい |
 | 用途と複雑性 | URLの書き換えなど、非常に小規模で高速な実行が必要な用途に向いている                                                                                                                                                                                        | より複雑なアプリケーションロジックをエッジで実行できる |
 
-電子書籍事業部で使用されている書影画像の非公開チェックは「 CloudFront で配信されている書影画像に対して、まだ公開していない作品の場合は now printing と呼ばれる画像を代わりに表示する」というシンプルな機能です。シンプルな機能であり、かつ高速にコンテンツを配信したいため、本来 CloudFront Functions の方が適しています。
+電子書籍事業部で使用されている商品のパッケージ画像の非公開チェックは「 CloudFront で配信されている商品のパッケージ画像に対して、まだ公開していない作品の場合は now printing と呼ばれる画像を代わりに表示する」というシンプルな機能です。シンプルな機能であり、かつ高速にコンテンツを配信したいため、本来 CloudFront Functions の方が適しています。
 
 # なぜ Lambda@Edge だったのか？
 
@@ -39,7 +39,7 @@ CloudFront KeyValueStore という CloudFront Functions から呼び出せる非
 
 CloudFront KeyValueStore は比較的に新しくリリースされた機能であるため、AWSの他のサービスよりもまだ出回っている情報が少ないです。
 
-今回の書影高速化作業で重要だと感じだポイントをいくつか纏めておきます。
+今回の商品のパッケージ画像処理の高速化作業で重要だと感じだポイントをいくつか纏めておきます。
 
 ## CloudFront KeyValueStore は ETag という仕組みによってバージョン管理をしています。
 
@@ -271,7 +271,7 @@ done
 
 # 実際に再実装した際に遭遇した大変だったこと
 
-書影画像の非公開チェックを CloudFront Functions + CloudFront KeyValueStore で再実装した際に、上手く行かなかった点も少し紹介します。
+商品のパッケージ画像の非公開チェックを CloudFront Functions + CloudFront KeyValueStore で再実装した際に、上手く行かなかった点も少し紹介します。
 
 ## cloudfront-js と Node.js は互換性がありません。
 
@@ -457,4 +457,4 @@ if _, err := kvsClient.UpdateKeys(context.Background(), input); err != nil {
 
 # まとめ
 
-今回は、電子書籍事業部で使用している書影の非公開チェック処理を Lambda@Edge から CloudFront Functions に切り替えることで処理の高速化を実現できました。同じような状況で仕方なく Lambda@Edge で実装してきた方も多いのではないでしょうか？この記事がお役に立てれば幸いです。
+今回は、電子書籍事業部で使用している商品のパッケージ画像の非公開チェック処理を Lambda@Edge から CloudFront Functions に切り替えることで処理の高速化を実現できました。同じような状況で仕方なく Lambda@Edge で実装してきた方も多いのではないでしょうか？この記事がお役に立てれば幸いです。
