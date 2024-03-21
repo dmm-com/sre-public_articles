@@ -284,109 +284,83 @@ CloudFront KeyValueStore へのリクエストは正しい順番で実行しな�
 
 AWSのドキュメントや各種インターネット上の記事を調べてもあまり情報がないので、ここに Golang での実装方法を残しておきます。
 
-**パッケージの導入と初期化**
+**必要なパッケージ**
 
 ```go
-package main
+"github.com/aws/aws-sdk-go-v2/aws"
+"github.com/aws/aws-sdk-go-v2/config"
+"github.com/aws/aws-sdk-go-v2/service/cloudfrontkeyvaluestore"
+"github.com/aws/aws-sdk-go-v2/service/cloudfrontkeyvaluestore/types"
+```
 
-import (
-	"context"
-	"errors"
-	"fmt"
-	"log"
-	"os"
+**クライアントの初期化**
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/cloudfrontkeyvaluestore"
-	"github.com/aws/aws-sdk-go-v2/service/cloudfrontkeyvaluestore/types"
-)
-
-var kvsARN = aws.String(os.Getenv("KVS_ARN"))
-var kvsClient *cloudfrontkeyvaluestore.Client
-
-func init() {
-	cfg, err := config.LoadDefaultConfig(context.Background())
-	if err != nil {
-		log.Fatalf("Unable to load SDK config, %v", err)
-	}
-	kvsClient = cloudfrontkeyvaluestore.NewFromConfig(cfg)
+```go
+cfg, err := config.LoadDefaultConfig(context.Background())
+if err != nil {
+	log.Fatalf("Unable to load SDK config, %v", err)
 }
+kvsClient := cloudfrontkeyvaluestore.NewFromConfig(cfg)
 ```
 
 **ETag の取得**
 
 ```go
-func getCurrentETag() (string, error) {
-	input := &cloudfrontkeyvaluestore.DescribeKeyValueStoreInput{
-		KvsARN: kvsARN,
-	}
+input := &cloudfrontkeyvaluestore.DescribeKeyValueStoreInput{
+	KvsARN: aws.String("<使用するCloudFrontKeyValueStoreのARN>"),
+}
 
-	output, err := kvsClient.DescribeKeyValueStore(context.Background(), input)
-	if err != nil {
-		return "", fmt.Errorf("failed to describe KVS: %w", err)
-	}
+output, err := kvsClient.DescribeKeyValueStore(context.Background(), input)
 
-	if output.ETag == nil {
-		return "", errors.New("ETag not found in KVS description")
-	}
-
-	return *output.ETag, nil
+if err != nil {
+	fmt.Printf("failed to describe KVS: %s.", err)
+} else if output.ETag == nil {
+	fmt.Println("ETag not found in KVS description.")
+} else {
+	fmt.Println("ETag: ", *output.ETag)
 }
 ```
 
 **データの保存**
 
 ```go
-func putToKeyValueStore(key, value string) error {
-	eTag, err := getCurrentETag()
-	if err != nil {
-		return err
-	}
+input := &cloudfrontkeyvaluestore.PutKeyInput{
+	IfMatch: aws.String("<事前に取得したETagの値>"),
+	Key:     aws.String("<保存したいデータのキー>"),
+	Value:   aws.String("<保存したいデータの値>"),
+	KvsARN:  aws.String("<使用するCloudFrontKeyValueStoreのARN>"),
+}
 
-	input := &cloudfrontkeyvaluestore.PutKeyInput{
-		IfMatch: aws.String(eTag),
-		Key:     aws.String(key),
-		Value:   aws.String(value),
-		KvsARN:  kvsARN,
-	}
-
-	if _, err := kvsClient.PutKey(context.Background(), input); err != nil {
-		return fmt.Errorf("failed to put key: %w", err)
-	}
-
-	return nil
+if _, err := kvsClient.PutKey(context.Background(), input); err != nil {
+	fmt.Printf("failed to put key: %s", err)
+} else {
+	fmt.Println("Successfully put key")
 }
 ```
 
-**データの一括保存 (一回の保存数が32を超えるとAWSの上限に引っかかります)**
+**データの一括保存 (2024/3/21現在は確認したところ、一回の保存数が32を超えるとAWSの上限に引っかかります)**
 
 ```go
-func putMultipleToKeyValueStore(keyValues map[string]string) error {
-	eTag, err := getCurrentETag()
-	if err != nil {
-		return err
-	}
-
-	items := make([]types.PutKeyRequestListItem, 0, len(keyValues))
-	for key, value := range keyValues {
-		items = append(items, types.PutKeyRequestListItem{
-			Key:   aws.String(key),
-			Value: aws.String(value),
-		})
-	}
-
-	input := &cloudfrontkeyvaluestore.UpdateKeysInput{
-		IfMatch: aws.String(eTag),
-		Puts:    items,
-		KvsARN:  kvsARN,
-	}
-
-	if _, err := kvsClient.UpdateKeys(context.Background(), input); err != nil {
-		return fmt.Errorf("failed to update keys: %w", err)
-	}
-
-	return nil
+keyValues := map[string]string{
+	"key1": "value1",
+	"key2": "value2",
+}
+items := make([]types.PutKeyRequestListItem, 0, len(keyValues))
+for key, value := range keyValues {
+	items = append(items, types.PutKeyRequestListItem{
+		Key:   aws.String(key),
+		Value: aws.String(value),
+	})
+}
+input := &cloudfrontkeyvaluestore.UpdateKeysInput{
+	IfMatch: aws.String("<事前に取得したETagの値>"),
+	Puts:    items,
+	KvsARN:  aws.String("<使用するCloudFrontKeyValueStoreのARN>"),
+}
+if _, err := kvsClient.UpdateKeys(context.Background(), input); err != nil {
+	fmt.Printf("failed to update keys: %s", err)
+} else {
+	fmt.Println("Successfully updated keys")
 }
 ```
 
