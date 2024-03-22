@@ -435,13 +435,17 @@ if _, err := kvsClient.UpdateKeys(context.Background(), input); err != nil {
 [以下AWSのドキュメントより抜粋](https://docs.aws.amazon.com/ja_jp/AmazonCloudFront/latest/DeveloperGuide/edge-function-restrictions-all.html)
 > CloudFront オリジンが HTTP ステータスコード 400 以上を返す場合、 はビューワーレスポンスイベントのエッジ関数を呼び出しません。
 
-# 効果測定
+# 効果測定 (CloudFrontにキャッシュされていない場合)
+
 ## 以前
-S3から非公開商品のリストをダウンロードしていたため、17秒前後という高いレイテンシーが発生していました。
+S3から非公開商品のリストをダウンロードしていたため、17ms 前後のレイテンシーが発生していました。
 ![past.png](past.png)
 ## 現在
-S3から非公開商品のリストをダウンロードしなくなったため、ほぼ5秒以内でレスポンスが返ってくるようになりました。
+S3から非公開商品のリストをダウンロードしなくなったため、ほぼ 5ms 以内でレスポンスが返ってくるようになりました。
+
+これに加えて 1ms 未満の CloudFront Functions のレイテンシーが発生するため、合計で 6ms 前後のレイテンシーになります。
 ![now.png](now.png)
+
 
 # まとめ
 
