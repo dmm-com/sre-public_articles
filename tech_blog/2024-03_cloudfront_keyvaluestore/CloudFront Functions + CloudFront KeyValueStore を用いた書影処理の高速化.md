@@ -419,6 +419,30 @@ if _, err := kvsClient.UpdateKeys(context.Background(), input); err != nil {
 }
 ```
 
+# CloudFront Functions に移行できなかった部分
+| 元々 Lambda@Edge で実現していた機能                  | CloudFront Functions への移行 |
+|-------------------------------------------|---------------------------|
+| 非公開のパッケージ画像へのアクセスは now printing へリダイレクトする | ◯                         |
+| S3にまだ画像をアップロードしていない場合は now printing へリダイレクトする | ✗                         |
+
+今回の作業で、商品のパッケージ画像の非公開チェック機能を CloudFront Functions に移行することができました。しかし、S3に画像が存在しない場合のリダイレクトは CloudFront Functions では実現できませんでした。
+
+オリジン(S3)レスポンスが403や404の場合にビューワーレスポンスイベントのエッジ関数を呼び出すことができないです。
+また、CloudFront Functions はオリジンレスポンスイベントに対応していません。
+
+そのため、今回は S3に画像が存在しない場合のリダイレクト処理だけ Lambda@Edge に残すことにしました。
+
+[以下AWSのドキュメントより抜粋](https://docs.aws.amazon.com/ja_jp/AmazonCloudFront/latest/DeveloperGuide/edge-function-restrictions-all.html)
+> CloudFront オリジンが HTTP ステータスコード 400 以上を返す場合、 はビューワーレスポンスイベントのエッジ関数を呼び出しません。
+
+# 効果測定
+## 以前
+S3から非公開商品のリストをダウンロードしていたため、17秒前後という高いレイテンシーが発生していました。
+![past.png](past.png)
+## 現在
+S3から非公開商品のリストをダウンロードしなくなったため、ほぼ5秒以内でレスポンスが返ってくるようになりました。
+![now.png](now.png)
+
 # まとめ
 
 今回は、DMMブックスで使用している商品のパッケージ画像の非公開チェック処理を Lambda@Edge から CloudFront Functions に切り替えることで処理の高速化を実現できました。同じような状況で仕方なく Lambda@Edge で実装してきた方も多いのではないでしょうか？この記事がお役に立てれば幸いです。
