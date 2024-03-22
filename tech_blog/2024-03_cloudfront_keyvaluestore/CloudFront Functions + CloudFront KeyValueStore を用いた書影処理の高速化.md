@@ -303,7 +303,7 @@ console.log(date > now)
 
 ## Terraform がまだ CloudFront Functions をサポートしていない
 
-電子書籍事業部の AWS は Terraform 管理されているため、今回も Terraform で各種リソースを定義しましたが、ここで１つ大きな落とし穴があります。
+DMMブックスの AWS は Terraform 管理されているため、今回も Terraform で各種リソースを定義しましたが、ここで１つ大きな落とし穴があります。
 
 2024/03/15時点 Terraform の CloudFront KeyValueStore の対応はまだ不完全なため、リソースを作成することは可能ですが、「CloudFront Functions と CloudFront KeyValueStore の関連付け」を定義できません。
 
@@ -421,4 +421,4 @@ if _, err := kvsClient.UpdateKeys(context.Background(), input); err != nil {
 
 # まとめ
 
-今回は、電子書籍事業部で使用している商品のパッケージ画像の非公開チェック処理を Lambda@Edge から CloudFront Functions に切り替えることで処理の高速化を実現できました。同じような状況で仕方なく Lambda@Edge で実装してきた方も多いのではないでしょうか？この記事がお役に立てれば幸いです。
+今回は、DMMブックスで使用している商品のパッケージ画像の非公開チェック処理を Lambda@Edge から CloudFront Functions に切り替えることで処理の高速化を実現できました。同じような状況で仕方なく Lambda@Edge で実装してきた方も多いのではないでしょうか？この記事がお役に立てれば幸いです。
