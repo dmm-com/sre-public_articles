@@ -294,28 +294,11 @@ console.log(`[INFO] date: ${date}`)
 
 ちなみにこの場合、例外は発生せず、そのまま処理が進みます。下記のような比較は常に `false` と判定されるため、少し気づきにくいです。
 
+そのため、今回は仕方なく 正規表現でパースすることにしました。
 ```jsx
 let date = new Date('2024-02-15 09:00:00+09:00')
 let now = new Date()
 console.log(date > now)
-```
-
-今回は仕方なく下記のように日付のパースを実装しました。
-
-```jsx
-// CloudFront Functions のランタイムでは Node.js と違って、`new Date('2024-02-15 09:00:00')` を実行すると `Invalid Date` になるため、
-// 正規表現でパースしてから `new Date(year, month, day, hours, minutes, seconds)` で Date オブジェクトを生成する。
-function parseDateTime(dateTimeString) {
-    const regex = /^(\d{4})-(\d{2})-(\d{2})\s(\d{2}):(\d{2}):(\d{2})$/
-    const match = dateTimeString.match(regex)
-    const year = parseInt(match[1], 10)
-    const month = parseInt(match[2], 10) - 1 // JavaScriptの月は0から始まるため
-    const day = parseInt(match[3], 10)
-    const hours = parseInt(match[4], 10)
-    const minutes = parseInt(match[5], 10)
-    const seconds = parseInt(match[6], 10)
-    return new Date(year, month, day, hours, minutes, seconds)
-}
 ```
 
 ## Terraform がまだ CloudFront Functions をサポートしていない
@@ -326,35 +309,16 @@ function parseDateTime(dateTimeString) {
 
 リソースを Terraform で作成してから、AWS コンソールから手動で関連付けを設定しましたが、 `terraform apply` を実行すると関連付けが消されるため、CloudFront Functions から CloudFront KeyValueStore にアクセスできなくなります。
 
-Terraform でデプロイできないため、今回は下記のような Bash スクリプトで aws-cli を使ってデプロイする処理を CI に入れました。
+Terraform でデプロイできないため、今回は下記のように aws-cli を使ってデプロイする処理を CI に入れました。
+
+`--function-config` 引数に CloudFront KeyValueStore の ARN を指定することで関連付けを行うことができます。
 
 ```bash
-function deploy(){
-  local function_name=$1
-  local key_value_store_arn=$2
-  local key_value_store_id
-  key_value_store_id=$(echo "${key_value_store_arn}" | awk -F'/' '{print $NF}')
-
-  local source_file
-  source_file="temp_function_$(date +%s).js"
-  cp function.js "${source_file}"
-  sed -i '' "s/<KVS_ID>/${key_value_store_id}/g" "${source_file}"
-
-  local etag_current
-  etag_current=$(aws cloudfront describe-function --name "${function_name}" | jq -r '.ETag')
-  aws cloudfront update-function \
-    --name "${function_name}" \
-    --if-match "${etag_current}" \
-    --function-code "fileb://${source_file}" \
-    --function-config Comment="Updated at $(date)",Runtime=cloudfront-js-2.0,KeyValueStoreAssociations="{Quantity=1,Items=[{KeyValueStoreARN=\"${key_value_store_arn}\"}]}"
-  rm "${source_file}"
-
-  local etag_publish
-  etag_publish=$(aws cloudfront describe-function --name "${function_name}" | jq -r '.ETag')
-  aws cloudfront publish-function \
-      --name "${function_name}" \
-      --if-match "${etag_publish}"
-}
+aws cloudfront update-function \
+    --name "<CloudFront Functions の名前>" \
+    --if-match "<CloudFront Functions のETag>" \
+    --function-code "fileb://<CloudFront Functions のソースコードが保存されたファイルパス>" \
+    --function-config Comment="Updated at $(date)",Runtime=cloudfront-js-2.0,KeyValueStoreAssociations="{Quantity=1,Items=[{KeyValueStoreARN=\"<CloudFront KeyValueStore の ARN>\"}]}"
 ```
 
 ## 更新リクエストは１つずつしか受け付けない
