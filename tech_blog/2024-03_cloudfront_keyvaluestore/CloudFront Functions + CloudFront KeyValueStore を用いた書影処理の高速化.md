@@ -1,10 +1,10 @@
 # CloudFront Functions + CloudFront KeyValueStore を用いた商品のパッケージ画像処理の高速化
 
-こんにちは。ITインフラ本部 SRE部の周です。現在電子書籍事業部でAWS関連の業務を担当しています。
+こんにちは。ITインフラ本部 SRE部の周です。
 
-その一環として、Lambda@Edge で実装されていた商品のパッケージ画像の非公開チェック機能を高速化させるため、
+現在、EmbeddedSREとして、DMMブックスを開発・運用している電子書籍事業部に参画しており、主にAWS関連の業務を担当しています。
 
-新しく CloudFront Functions で実装することを行いました。
+その一環として、Lambda@Edge で実装されていた商品のパッケージ画像の非公開チェック機能を高速化させるため、 新しく CloudFront Functions で実装することを行いました。
 
 # CloudFront Functions と Lambda@Edge の違い
 
@@ -16,7 +16,7 @@
 | 実行速度 | 非常に高速である                                                                                                                                                                                                                   | 複雑なタスクを実行できる分、比較的レイテンシーが大きい |
 | 用途と複雑性 | URLの書き換えなど、非常に小規模で高速な実行が必要な用途に向いている                                                                                                                                                                                        | より複雑なアプリケーションロジックをエッジで実行できる |
 
-電子書籍事業部で使用されている商品のパッケージ画像の非公開チェックは「 CloudFront で配信されている商品のパッケージ画像に対して、まだ公開していない作品の場合は now printing と呼ばれる画像を代わりに表示する」というシンプルな機能です。シンプルな機能であり、かつ高速にコンテンツを配信したいため、本来 CloudFront Functions の方が適しています。
+DMMブックスで使用されている商品のパッケージ画像の非公開チェックは「 CloudFront で配信されている商品のパッケージ画像に対して、まだ公開していない作品の場合は now printing と呼ばれる画像を代わりに表示する」というシンプルな機能です。シンプルな機能であり、かつ高速にコンテンツを配信したいため、本来 CloudFront Functions の方が適しています。
 
 # なぜ Lambda@Edge だったのか？
 
@@ -318,9 +318,9 @@ function parseDateTime(dateTimeString) {
 }
 ```
 
-## TerraformがまだCloudFront Functionsをサポートしていない
+## Terraform がまだ CloudFront Functions をサポートしていない
 
-電子書籍事業部のAWSはTerraform管理されているため、今回もTerraformで各種リソースを定義しましたが、ここで１つ大きな落とし穴があります。
+電子書籍事業部の AWS は Terraform 管理されているため、今回も Terraform で各種リソースを定義しましたが、ここで１つ大きな落とし穴があります。
 
 2024/03/15時点 Terraform の CloudFront KeyValueStore の対応はまだ不完全なため、リソースを作成することは可能ですが、「CloudFront Functions と CloudFront KeyValueStore の関連付け」を定義できません。
 
