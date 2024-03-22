@@ -4,7 +4,7 @@
 
 その一環として、Lambda@Edge で実装されていた商品のパッケージ画像の非公開チェック機能を高速化させるため、
 
-新しく CloudFunctions で実装することを行いました。
+新しく CloudFront Functions で実装することを行いました。
 
 # CloudFront Functions と Lambda@Edge の違い
 
