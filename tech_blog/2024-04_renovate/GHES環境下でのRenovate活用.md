@@ -21,7 +21,7 @@ DMMではGitHub Cloudの他にGitHub Enterprise Server（以降GHES）も活用�
 GitHub CloudのRenovateはGHESではそのままでは利用できず、Self Hostedとして設定する必要があります。
 ※本記事ではSelf Hosted型のRenovate Bot実行基盤の導入手順については省略します。
 
-GHESでRenovateの利用を希望する場合、まず管理者が作成したRenovate Botをオーガニゼーションに追加する必要があります。
+GHESでRenovateを利用する場合、事前に用意したRenovate Botをオーガニゼーションに追加する必要があります。
 その後、任意のリポジトリ（もしくは全てのリポジトリ）でRenovateを有効にして実行対象に設定します。
 
 ![repository-access.png](repository-access.png)
