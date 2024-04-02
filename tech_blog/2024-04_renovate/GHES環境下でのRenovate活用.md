@@ -159,7 +159,7 @@ Renovateを有効にしたいリポジトリで、以下のようにRenovate Bot
 }
 ```
 
-パラメーターの詳細については、[公式ドキュメント](https://docs.renovatebot.com/config-overview/)を参照してください。
+パラメータの詳細については、[公式ドキュメント](https://docs.renovatebot.com/config-overview/)を参照してください。
 
 # ベストプラクティスと注意点
 Renovateを最大限に活用するためには、どの依存関係に自動更新を適用するか慎重に選択することが重要です。
