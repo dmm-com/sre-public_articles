@@ -23,7 +23,8 @@ GitHub CloudのRenovateはGHESではそのままでは利用できず、Self Hos
 
 GHESでRenovateの利用を希望する場合、まず管理者が作成したRenovate Botをオーガニゼーションに追加する必要があります。
 その後、任意のリポジトリ（もしくは全てのリポジトリ）でRenovateを有効にして実行対象に設定します。
-<<イメージ画像を挿入する>>
+
+![repository-access.png](repository-access.png)
 
 これにより、Renovate Botが初めて実行されたとき、Renovate実行に必要なrenovate.jsonファイルを含む初期設定プルリクエストが自動的に作成されます。
 このプルリクエストをマージすることで、Renovateによる基本的な依存関係の更新設定が完了します。
