@@ -19,7 +19,7 @@ Renovateは自動的にプルリクエストを作成し、依存関係の更新
 # 導入概要
 DMMではGitHub Cloudの他にGitHub Enterprise Server（以降GHES）も活用しています。
 GitHub CloudのRenovateはGHESではそのままでは利用できず、Self Hostedとして設定する必要があります。
-※本記事ではSelf Hosted型のRenovate Bot実行基盤の導入手順については省略します。
+本記事ではRenovate Bot実行基盤の導入手順の詳細には触れず、Renovateを利用して実現できる主な機能とメリットに焦点を当てています。
 
 GHESでRenovateを利用する場合、事前に用意したRenovate Botをオーガニゼーションに追加する必要があります。
 その後、任意のリポジトリ（もしくは全てのリポジトリ）でRenovateを有効にして実行対象に設定します。
