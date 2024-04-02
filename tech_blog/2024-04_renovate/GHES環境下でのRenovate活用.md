@@ -27,7 +27,7 @@ GHESでRenovateを利用する場合、事前に用意したRenovate Botをオ�
 
 ![repository-access.png](repository-access.png)
 
-これにより、Renovate Botが初めて実行されたとき、Renovate実行に必要なrenovate.jsonファイルを含む初期設定プルリクエストが自動的に作成されます。
+これにより、Renovate Botが初めて実行されたとき、Renovateの実行に必要なrenovate.jsonファイルを含む初期設定プルリクエストが自動的に作成されます。
 このプルリクエストをマージすることで、Renovateによる基本的な依存関係の更新設定が完了します。
 
 * 作成されたプルリクエスト
