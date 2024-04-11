@@ -46,7 +46,7 @@ WD を利用して AWS のシステム構成図を作成する手順は以下の
 
 <img src="img/screenshot_1_import_2.png" width="800">
 
-<img src="img/screenshot_1_import_3.png" width="800">
+<img src="img/screenshot_1_import_3.png" width="400">
 
 #### 注意事項
 * WD は AWS Config の情報をもとにリソースを検出しているため、リソースの種類によっては反映までに24時間かかります
