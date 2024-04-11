@@ -40,6 +40,8 @@ WD を利用して AWS のシステム構成図を作成する手順は以下の
 ### 1. リソース情報をインポートする
 対象となるアカウントおよびリージョンのリソース情報を WD へインポートします。
 
+システム構成図に CloudFront を含める場合はリージョンで「US East (N. Virginia)」も追加選択してください。
+
 <img src="img/screenshot_1_import_1.png" width="500">
 
 <img src="img/screenshot_1_import_2.png" width="500">
