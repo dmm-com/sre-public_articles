@@ -40,21 +40,20 @@ WD を利用して AWS のシステム構成図を作成する手順は以下の
 ### 1. リソース情報をインポートする
 対象となるアカウントおよびリージョンのリソース情報を WD へインポートします。
 
-```
-Import 画面の画像
-```
+<img src="img/screenshot_1_import_1.png" width="500">
+
+<img src="img/screenshot_1_import_2.png" width="500">
+
+<img src="img/screenshot_1_import_3.png" width="300">
 
 #### 注意事項
 * WD は AWS Config の情報をもとにリソースを検出しているため、リソースの種類によっては反映までに24時間かかります
 * リソース検知は15分間隔で実行されます（毎時00分、毎時15分、毎時30分、毎時45分に実行）
 * Import ボタンを押してから次回のリソース検知までは既に Import 済みのリソースも WD で一時的にアクセスできない状態になります
 
-```
-Resources 画面でリソースが０件状態の画像
-```
-```
-Accounts 画面でリソースが０件状態の画像
-```
+<img src="img/screenshot_2_accounts_1.png" width="300">
+
+<img src="img/screenshot_3_resources_1.png" width="300">
 
 ### 2. Diagram を作成する
 Resources 画面で対象アカウントおよびリージョンを選択し、Diagram を作成します。
@@ -62,10 +61,7 @@ Resources 画面で対象アカウントおよびリージョンを選択し、D
 まずは、Resources 画面へ遷移し、対象アカウントとリージョンを選択してください。
 CloudFront などを含める場合はリージョンで「global」も追加選択してください。
 
-```
-Resource Filters を選択した状態の画像
-（アカウント1つ＋東京＋global）
-```
+<img src="img/screenshot_4_resources_1.png" width="500">
 
 次に、Diagram に含めたいリソース種別を Resources types で選択してください。
 
@@ -74,6 +70,8 @@ Resource Filters を選択した状態の画像
 Resources types の検索欄をクリアしても選択状態は維持されるため、必要な分だけ検索と選択を繰り返してください。
 
 最後に、Resources 一覧に表示されているリソースのうち、Diagram に含めたいリソース全てにチェックを入れ、「Add to diagram」ボタンを押下してください。
+
+<img src="img/screenshot_4_resources_2.png" width="500">
 
 Resources 画面で直接選択したリソース以外にも、選択したリソースに関連するリソースが自動で Diagram に追加されます。
 
@@ -88,18 +86,14 @@ Resources 画面で直接選択したリソース以外にも、選択したリ�
 
 Visibility と Name を入力し、「Create」ボタンを押下してください。
 
-```
-Create Diagram の画像
-（Visibility と Name を入力した状態）
-```
+<img src="img/screenshot_5_create_diagram_1.png" width="500">
 
 Diagram の作成ユーザーのみ参照／更新可能にするには Visibility で Private を選択し、他のユーザーも参照／更新可能にするには Public を選択してください。
 
 **Diagram を作成する際に Visibility と Name を設定できますが、Diagram 作成後はこれらの値を変更できないためご注意ください。**
 
-```
-Diagram 作成直後の画像
-```
+#### 作成直後のDiagram
+<img src="img/screenshot_6_diagram_saved_1.png" width="500">
 
 ### 3. Diagram を修正する
 2で作成した Diagram のままだと、重要度の低いリソースが多くて含まれた複雑なシステム構成図になります。
@@ -112,10 +106,8 @@ Accounts と Regions は選択不要です。
 
 最後に、Resource Types で出力を制限するリソースタイプを複数選択し、Apply と Save を実行してください。
 
-```
-Diagram Settings の画像
-（Resource Types を選択した状態）
-```
+#### 非表示にするリソースタイプを選択
+<img src="img/screenshot_7_diagram_1.png" width="500">
 
 例として挙げると、以下のリソースタイプを非表示にするのがおすすめです。
 
@@ -128,14 +120,10 @@ Diagram Settings の画像
 | AWS::Tags::Tag |
 
 #### 上記のリソースタイプを非表示にする前
-```
-出力制限する前の画像
-```
+<img src="img/screenshot_8_diagram_1.png" width="500">
 
 #### 上記のリソースタイプを非表示にした後
-```
-出力制限した後の画像
-```
+<img src="img/screenshot_8_diagram_2.png" width="500">
 
 ### 4. Diagram をファイルに出力する（draw.io形式）
 Diagrams 画面へ遷移し、対象の Diagram を開いてください。
@@ -150,14 +138,10 @@ WD から Export した直後のファイルでは枠線の表示が重なって
 これでAWSのシステム構成図の作成が完了です。
 
 #### 手動調整する前
-```
-手動調整前の画像
-```
+<img src="img/diagram_1_before.png" width="400">
 
 #### 手動調整した後
-```
-手動調整後の画像
-```
+<img src="img/diagram_2_after.png" width="400">
 
 # 注意点
 WD を稼働したままにすると、1ヶ月で約425ドルの運用コストが掛かります。
