@@ -130,10 +130,20 @@ Accounts と Regions は選択不要です。
 #### 上記のリソースタイプを非表示にした後
 <img src="img/screenshot_8_diagram_2.png" width="800">
 
-### 4. Diagram をファイルに出力する（draw.io形式）
-Diagrams 画面へ遷移し、対象の Diagram を開いてください。
+### 4. Diagram をファイルに出力する
+本ソリューションで作成した Diagram は以下の形式でファイル出力可能です。
 
-Actions -> Diagram -> Export から Diagram を draw.io 形式で出力します。
+| 出力可能な形式 |
+|--|
+| JSON |
+| CSV |
+| Draw.io |
+
+ファイル出力後の手直しのしやすさから Draw.io 形式での出力をお勧めします。
+
+まず、Diagrams 画面へ遷移し、対象の Diagram を開いてください。
+
+次に、Actions -> Diagram -> Export から Diagram を draw.io 形式で出力します。
 
 ### 5. ファイル出力後に手動で調整する
 本ソリューションから Export した直後のファイルでは枠線の表示が重なっているなど、見づらい状態です。
