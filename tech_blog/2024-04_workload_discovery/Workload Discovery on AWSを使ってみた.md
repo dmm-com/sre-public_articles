@@ -146,7 +146,8 @@ WD から Export した直後のファイルでは枠線の表示が重なって
 <img src="img/diagram_2_after.png" width="500">
 
 # 注意点
-WD を稼働したままにすると、1ヶ月で約425ドルの運用コストが掛かります。([Example cost tables](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/cost.html#example-cost-tables))
+月額で約425ドルの料金が発生します。(「2024年04月時点の価格体系」)
+([Example cost tables](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/cost.html#example-cost-tables))
 
 そのため、公式ドキュメント([Cost optimization](https://aws-solutions.github.io/workload-discovery-on-aws/workload-discovery-on-aws/2.0/cost-optimization.html))に記載されているように、使用しない期間はコストを抑えるために以下の2点を実施することをおすすめします。
 
