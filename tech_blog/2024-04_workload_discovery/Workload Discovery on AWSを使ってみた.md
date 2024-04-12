@@ -1,16 +1,16 @@
 こんにちは。ITインフラ本部 SRE部の馬屋原です。
-今回は、AWSクラウドのワークロードを可視化するツール、Workload Discovery on AWS について紹介します。
+今回は、AWSクラウドのワークロードを可視化するソリューション、Workload Discovery on AWS について紹介します。
 
 多くのプロジェクトでは、システムの初回構築時や更新時にAWSのシステム構成図を手動で作成／更新します。
 そのため、システム構成図の作成／更新に時間が掛かります。
 また、運用を続けていくうちにシステム構成図と実際のシステムで徐々に乖離が発生するようになります。
 
-本ツールを利用してシステム構成図を作成することで、いつでも短時間で最新のシステム構成図を作成できるようになります。
+本ソリューションを利用してシステム構成図を作成することで、いつでも短時間で最新のシステム構成図を作成できるようになります。
 
 ※この記事では、Workload Discovery on AWS のバージョン2.1.6を前提に説明しています。
 
 # Workload Discovery on AWS とは？
-Workload Discovery on AWS（以降WD） とは AWSクラウドのワークロードを可視化するツールです。
+Workload Discovery on AWS（以降WD） とは AWSクラウドのワークロードを可視化するソリューションです。
 
 ※公式サイト: https://aws.amazon.com/jp/solutions/implementations/workload-discovery-on-aws/
 
@@ -19,7 +19,7 @@ Workload Discovery on AWS（以降WD） とは AWSクラウドのワークロー
 
 # 主な機能
 AWS Config および AWS API の describe API コールを利用してワークロードを検出します。
-検出されたリソースは本ツールの Web UI を通して検索／表示可能です。
+検出されたリソースは本ソリューションの Web UI を通して検索／表示可能です。
 検出されたリソース情報に基づいてAWSのシステム構成図を作成し、ファイルへ出力可能です。
 
 # 導入概要
