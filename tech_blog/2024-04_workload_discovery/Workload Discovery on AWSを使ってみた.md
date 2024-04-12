@@ -29,6 +29,9 @@ AWS Config および AWS API の describe API コールを利用してワーク�
 Workload Discovery on AWS を利用するには、まず本ソリューションのデプロイ先となるアカウント（アドミンアカウント）を用意し、本ソリューションをデプロイします。
 次に、分析対象のアカウント（ターゲットアカウント）をセットアップします。
 
+本ソリューションではアドミンアカウントおよびターゲットアカウントで AWS Config を使用します。
+そのため、必要に応じてセットアップ時に AWS Config を有効にする必要があります。
+
 各アカウントでの具体的なセットアップ手順は[公式サイト](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/deploy-the-solution.html)をご確認ください。
 CloudFormation のテンプレートが用意されているため、簡単にセットアップ可能です。
 
