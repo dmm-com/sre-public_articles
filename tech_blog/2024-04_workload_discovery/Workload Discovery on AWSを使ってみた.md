@@ -43,7 +43,7 @@ Workload Discovery on AWS を利用して AWS のアーキテクチャ図を作�
 ### 1. リソース情報をインポートする
 対象となるアカウントおよびリージョンのリソース情報を本ソリューションへインポートします。
 
-アーキテクチャ図に CloudFront を含める場合はリージョンで「US East (N. Virginia)」も追加選択してください。
+アーキテクチャ図に CloudFront などのグローバルサービスを含める場合はリージョンで「US East (N. Virginia)」も追加選択してください。
 
 <img src="img/screenshot_1_import_1.png" width="800">
 
@@ -64,7 +64,7 @@ Workload Discovery on AWS を利用して AWS のアーキテクチャ図を作�
 Resources 画面で対象アカウントおよびリージョンを選択し、Diagram を作成します。
 
 まずは、Resources 画面へ遷移し、対象アカウントとリージョンを選択してください。
-CloudFront などを含める場合はリージョンで「global」も追加選択してください。
+CloudFront などのグローバルサービスを含める場合はリージョンで「global」も追加選択してください。
 
 <img src="img/screenshot_4_resources_1.png" width="800">
 
