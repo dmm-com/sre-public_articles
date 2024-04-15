@@ -1,7 +1,9 @@
 # Workload Discovery on AWS を運用に組み込んでみた
 こんにちは。ITインフラ本部 SRE部の馬屋原です。
 
-今回、AWSクラウドのワークロードの詳細なアーキテクチャ図を出力するソリューションである Workload Discovery on AWS を運用に組み込みました。このため、Workload Discovery on AWS について紹介します。
+今回、AWSクラウドのワークロードの詳細なアーキテクチャ図を出力するソリューションである Workload Discovery on AWS を運用に組み込みました。
+具体的には、DMM内で本ソリューションを1つ構築し、各プロジェクトチームでアーキテクチャ図を作成する際に利用していただく体制を整えました。
+このため、Workload Discovery on AWS について紹介します。
 
 ※ワークロードとは、ビジネス価値をもたらすリソースとコードの集合のことです。
 
