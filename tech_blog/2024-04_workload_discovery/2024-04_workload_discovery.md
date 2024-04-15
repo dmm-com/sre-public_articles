@@ -63,7 +63,7 @@ Workload Discovery on AWS を利用してアーキテクチャ図を作成する
 <img src="img/screenshot_1_import_3.png" width="400">
 
 #### 注意事項
-* リソース検知は15分間隔で実行されます（毎時00分、毎時15分、毎時30分、毎時45分に実行）
+* 本ソリューションをデプロイしたときのパラメータ（DiscoveryTaskFrequency）にもよりますが、リソース検知はデフォルトで15分間隔で実行されます（毎時00分、毎時15分、毎時30分、毎時45分に実行）
 * Import ボタンを押してから次回のリソース検知までは既に Import 済みのリソースも本ソリューションで一時的にアクセスできない状態になります
 
 <img src="img/screenshot_2_accounts_1.png" width="500">
