@@ -9,19 +9,19 @@ NewRelicのAPM（Application Performance Monitoring）を利用することで�
 本記事では、AWS Aurora MySQLのスロークエリをNewRelicに送信する方法について、Terraformを用いた実装を交えて解説します。
 
 # 前提条件
-* RDSインスタンスは構築済みでスロークエリログもCloudWatch Logsすでに出力済み
+* RDSインスタンスは構築済みでスロークエリログもCloudWatch Logsに出力済み
 * Terraformのインストールも完了済み
 
 # 完成構成図
 下記の手順を実施すると以下のリソースが作成されます
 
-[![alt属性](./image.png)]
+![alt属性](./image.png)
 
 # 手順
 
 ## 1. S3バケットの作成
 
-Kinesis Data Firehose Delivery StreamのためのS3バケットを作っておきます。
+Amazon Data FirehoseのためのS3バケットを作っておきます。
 
 ```hcl
 resource "aws_s3_bucket" "this" {
@@ -30,7 +30,7 @@ resource "aws_s3_bucket" "this" {
 ```
 
 ## 2. IAMロールの作成
-Amazon Kinesis Data Firehose Delivery StreamとAWS CloudWatch Logs Subscription Filters(以下、CloudWach)で利用するIAMロールを事前に作成しておきます。
+Amazon Amazon Data FirehoseとAWS CloudWatch Logs Subscription Filters(以下、CloudWatch)で利用するIAMロールを事前に作成しておきます。
 
 ```hcl
 #-------------------------------------------------
@@ -112,7 +112,7 @@ resource "aws_iam_policy" "cloudwatch" {
 ```
 
 ## 2. 送信用のKinesis　を作成する
-NewRelicと連携するためのAmazon Kinesis Data Firehose Delivery Stream(以下、Kinesis)を作成します。
+NewRelicと連携するためのAmazon Amazon Data Firehose(以下、Kinesis)を作成します。
 NewRelicに送信するためにはライセンスキーが必要になります。NewRelicの管理画面でKeytypeを「ingest - License」で作成する必要があります。
 今回の例ではAWS Systems Manager Parameter Storeにセットした状態になっています。
 
@@ -152,7 +152,7 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
 
 ## 3. CloudWatch LogsをKinesisに転送する
 
-CloudWatchを使ってKinesisiにログを転送します。
+CloudWatchを使ってKinesisにログを転送します。
 複数のログを送りたい場合は、for_eachを使って対象を指定してあげます。
 
 ```hcl
