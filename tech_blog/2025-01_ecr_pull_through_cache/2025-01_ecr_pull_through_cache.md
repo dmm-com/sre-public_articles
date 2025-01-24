@@ -24,12 +24,14 @@ NAT Gatewayを介したインターネット通信がどれぐらい発生して
 そして、具体的にどこに通信しに行っているのか、といった情報は  
 VPCフローログの情報から確認することができます。  
 
-本記事では深くは触れませんが、VPCフローログで見られる  
+VPCフローログを使ったNAT Gateway通信の分析方法については、本記事では触れませんが、    
 通信先の情報として、以下のサイトへのアクセスがあった場合、  
 プルスルーキャッシュリポジトリ機能により、コスト削減できる可能性があります。  
 
 - `d5l0dvt14r5h8.cloudfront.net.`: パブリックECRのコンテナイメージを配信しているサイト
 - `production.cloudflare.docker.com.`:  Docker hubのコンテナイメージを配信しているサイト
+
+（参考）[CloudWatch LogsでのNAT Gateway通信ログ分析のサンプルクエリ](https://docs.aws.amazon.com/ja_jp/AmazonCloudWatch/latest/logs/CWL_QuerySyntax-examples.html#CWL_QuerySyntax-examples-NATGateway)
 
 # プルスルーキャッシュリポジトリ機能の全体イメージ
 
