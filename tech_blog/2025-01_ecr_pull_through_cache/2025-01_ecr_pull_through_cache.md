@@ -204,10 +204,10 @@ resource "aws_ecr_registry_policy" "this" {
 - `ecr-public/example/` の部分はプルスルーキャッシュの名前空間にあたります
 - `public.ecr.aws/<イメージパス>` → `xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/<ネームスペース>/イメージパス` のような読み替えになります
 
-| 読み替え前/後 | イメージURL |
+| キャッシュ利用有無 | イメージURL |
 | --- | --- |
-| 読み替え前 | `public.ecr.aws/aws-observability/aws-for-fluent-bit:2.23.3` |
-| 読み替え後 | `xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/ecr-public/example/aws-observability/aws-for-fluent-bit:2.23.3` |
+| キャッシュ利用しない場合のURL | `public.ecr.aws/aws-observability/aws-for-fluent-bit:2.23.3` |
+| キャッシュ利用時のURL | `xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/ecr-public/example/aws-observability/aws-for-fluent-bit:2.23.3` |
 
 
 # 実際に作成されるキャッシュレジストリについて
