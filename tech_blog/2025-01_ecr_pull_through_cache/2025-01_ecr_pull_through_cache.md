@@ -197,10 +197,11 @@ resource "aws_ecr_registry_policy" "this" {
 
 ## 読み替え例
 
-以下は、AWS fluent-bit の公式イメージを利用する場合の例です
+以下は、AWS fluent-bit の公式イメージを利用する場合の例です  
+ご自身の環境や実際に利用したいイメージパスなどに応じて読み替えてください。
 
 - `xxxxxxxxxxxx` は、自身のAWSアカウントIDと読み替えてください
-- `ecr-public/example/` はプルスルーキャッシュの名前空間です
+- `ecr-public/example/` の部分はプルスルーキャッシュの名前空間にあたります
 - `public.ecr.aws/<イメージパス>` → `xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/<ネームスペース>/イメージパス` のような読み替えになります
 
 | 読み替え前/後 | イメージURL |
