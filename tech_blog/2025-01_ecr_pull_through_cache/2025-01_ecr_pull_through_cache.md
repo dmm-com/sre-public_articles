@@ -153,13 +153,14 @@ Amazon ECR の画面のプライベートレジストリのメニューで
 - `キャッシュ名前空間`: 前述で作成したプルスルーキャッシュの名前空間を設定
 - `リポジトリ名`: アクセス先となるリポジトリ名を設定
 
-<img src="img/ecr_ptc_policy_config.png" width="800">
 
-`リポジトリ名` は、IAMポリシーの Resouce に対応する項目なので、通常、ワイルドカードが指定できますが、  
+なお、`リポジトリ名` は、IAMポリシーの Resouce に対応する項目なので、通常、ワイルドカードが指定できますが、  
 GUI上ではパス内にワイルドカード（＊）を含めると、入力チェックエラーでうまく設定できないようです。  
 ワイルドカードを含めたい場合は、JSON形式であれば編集、保存が可能でした。（2025/1/24 時点）
 
    例） "arn:aws:ecr:ap-northeast-1:xxxxxxxxxxxx:repository/ecr-public/example/*"
+ 
+<img src="img/ecr_ptc_policy_config.png" width="800">
 
 ##### Terraform から作成する場合
 
