@@ -58,7 +58,7 @@ VPCフローログの情報から確認することができます。
 複数のレジストリが対応していますが、今回は、`ECRパブリックレジストリ` の場合を例に挙げて説明します。
 
 この、`ECRパブリックレジストリ` とは、 AWSがパブリックに公開している、認証なしで  
-イメージ取得ができる ``public.ecr.aws` のようなドメインで始まるものを指しています。
+イメージ取得ができる `public.ecr.aws` のようなドメインで始まるものを指しています。
 
 プルスルーキャッシュを利用するにあたって、大きくは以下の２つが必要となります。
 
@@ -72,8 +72,8 @@ Terraformでの設定方法を紹介します。
 
 ### AWS Webコンソールから設定する場合
 
-Amazon ECR の画面のプライベートレジストリのメニューで
- `Features & Settings` の `Pull through cache` にある
+Amazon ECR の画面のプライベートレジストリのメニューで  
+ `Features & Settings` の `Pull through cache` にある  
 `ルールの追加` ボタンから設定を行います。
 
 <img src="img/ecr_ptc_cache_rule_create.png" width="800">
