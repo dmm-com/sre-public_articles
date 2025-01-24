@@ -138,8 +138,7 @@ ecr:CreateRepository
 ##### AWS Webコンソールから設定する場合
 
 Amazon ECR の画面のプライベートレジストリのメニューで  
- `Features & Settings` から `Permissions` を開き、  
-`ステートメントを作成` ボタンから設定を行います。
+ `Features & Settings` から `Permissions` を開き、`ステートメントを作成` ボタンから設定を行います。
 
 1. ポリシータイプで、 `プルスルーキャッシュ-スコープ` を選択してください。
 
