@@ -96,12 +96,12 @@ Amazon ECR の画面のプライベートレジストリのメニューで
 ### Terraform から作成する場合
 
 以下のようにTerraformから作成することも可能です。
-`ecr_repository_prefix` については、任意の名前空間を設定してください。
+`ecr_repository_prefix` の値については、任意の名前空間を設定してください。
 
 ```
 resource "aws_ecr_pull_through_cache_rule" "this" {
     ecr_repository_prefix = var.ecr_ptc_name_space # 任意のキャッシュ名前空間
-    upstream_registry_url = "public.ecr.aws" # 任意のキャッシュ名前空間
+    upstream_registry_url = "public.ecr.aws"
 }
 ```
 
