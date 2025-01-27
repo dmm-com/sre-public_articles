@@ -115,18 +115,18 @@ Amazon ECR の画面のプライベートレジストリのメニューで
  `Features & Settings` の `Pull through cache` にある  
 `ルールの追加` ボタンから設定を行います。
 
-<img src="img/ecr_ptc_cache_rule_create.png" width="800">
+<img src="img/ecr_ptc_cache_rule_create.png" width="400">
 
 1. アップストリームレジストリ の設定で `ECR Public` を選択してください。
 
-<img src="img/ecr_ptc_upstream.png" width="800">
+<img src="img/ecr_ptc_upstream.png" width="400">
 
 2. `キャッシュ名前空間` の `キャッシュリポジトリプレフィックス` で任意のネームスペースを指定してください。
    - デフォルトは `ecr-public` です
    - その下でさらに細かくパスで分けることも可能です（複数システム共存していて分割したい場合など）
      - 例） ecr-public/example
 
-<img src="img/ecr_ptc_namespace.png" width="800">
+<img src="img/ecr_ptc_namespace.png" width="400">
 
 3. 設定確認画面が出てくるので、問題なければ作成ボタンを押して完了です。
 
@@ -178,7 +178,7 @@ ecr:CreateRepository
 
 1. Amazon ECR の画面のプライベートレジストリのメニューで`Features & Settings` の `Permissions` を開き、`ステートメントを作成` ボタンから設定を行います。
 
-<img src="img/ecr_ptc_policy_create.png" width="800">
+<img src="img/ecr_ptc_policy_create.png" width="400">
 
 2. ポリシーステートメント設定画面で、パラメータを設定してください。
 
@@ -195,7 +195,7 @@ GUI上ではパス内にワイルドカード（＊）を含めると、入力�
 
    例） "arn:aws:ecr:ap-northeast-1:xxxxxxxxxxxx:repository/ecr-public/example/*"
  
-<img src="img/ecr_ptc_policy_config.png" width="800">
+<img src="img/ecr_ptc_policy_config.png" width="400">
 
 ##### Terraform から作成する場合
 
@@ -252,7 +252,7 @@ resource "aws_ecr_registry_policy" "this" {
 プルスルーキャッシュの機能を使って、実際にイメージがキャッシュされると、  
 以下のようにプライベートレジストリが作成されます。
 
-<img src="img/ecr_ptc_registry.png" width="800">
+<img src="img/ecr_ptc_registry.png" width="400">
 
 ## キャッシュイメージの自動更新について
 
