@@ -87,6 +87,7 @@ VPCフローログの情報から確認することができます。
 そのため、キャッシュされるデータサイズが大きく、かつ、 イメージpullの頻度が少ない場合、
 プルスルーキャッシュ機能を利用するほうが逆に割高になる可能性があります。
 
+参考： [Amazon Elastic Container Registry の料金](https://aws.amazon.com/jp/ecr/pricing/)より
 
 # プルスルーキャッシュの設定方法
 
