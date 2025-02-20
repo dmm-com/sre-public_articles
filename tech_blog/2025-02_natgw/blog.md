@@ -22,39 +22,155 @@
 本記事では、AWSのコスト最適化の手段として、NAT Gatewayの通信内容を調査し、削減する方法を紹介させていただきます。
 
 ## 背景
-私が担当する「とあるプロダクト」において、AWS Cost Explorerを用いたコスト分析を行ったところ、「EC2 - その他」のカテゴリが最も高額であることが判明しました。
+私が担当する「とあるプロダクト」において、AWS Cost Explorerを用いたコスト分析を行ったところ、「EC2-その他」のカテゴリが最も高額であることが判明しました。
 
 ![](./img/costExplorer1.png)
 
-「EC2 - その他」の内約を確認すると、その多くが「APN1 - NatGateway - Bytes（東京リージョンのNAT Gatewayのデータ処理料金）」によるものでした。
+「EC2-その他」の内訳を確認すると、その多くが「APN1-NatGateway-Bytes（東京リージョンのNAT Gatewayのデータ処理料金）」によるものでした。
 
 ![](./img/costExplorer2.png)
-つまり、NATゲートウェイの通信量を削減することで、AWSコストの大幅な削減が可能です。
+
+つまり、NAT Gatewayの通信量を削減することで、AWSコストの大幅な削減が可能ということがわかりました。
 
 ## NAT Gatewayの通信分析
 
 ### 調査のために必要なリソース構成
-`AWS Cost Exploer`や`Cloud Watch`の情報だけでは、NAT Gatewayの詳細な内容を調査することはできません。
+`AWS Cost Exploer`や`CloudWatch`の情報だけでは、NAT Gatewayの詳細な内容を調査することはできません。
 
-NAT Gatewayの通信を調査するには、以下のリソースを活用します。
+NAT Gatewayの通信を調査するには、以下を活用します。
 
 - `VPCフローログ`: NAT Gatewayの通信先のIPアドレスを記録
 - `Route53クエリログ`: DNS解決結果を記録し、通信先のドメインを特定
 
 ![調査のために必要なリソース構成](./img/diagram.dio.svg)
 
-参考までに、これらを構築するためのTerraformのサンプルコードを記載します。
-なお、VPCはすでに存在しているものとします。
+NAT Gatewayの通信分析を行うにあたり、以下の２種類の通信について分析を行います。
 
-> [!NOTE]
-> 長くなるので、コードを載せるべきか迷っています。
-> リポジトリを公開できればそのリンクを貼りたいが....
+- VPC内 ←（NAT Gateway）→ AWS内のサービス 間の通信
+- VPC内 ←（NAT Gateway）→ AWS以外のサービス 間の通信
 
+VPC内のリソースがNAT Gatewayを介してどの宛先と通信しているのかを分析し、その結果に基づいてコスト最適化を検討します。
+
+また、VPCフローログとRoute53クエリログについては、Athenaにて以下のDDLでテーブルを作成した前提とします。
+
+**VPCフローログ**
+```sql
+CREATE EXTERNAL TABLE `flowlogs`(
+  `version` int,
+  `account_id` string,
+  `interface_id` string,
+  `srcaddr` string,
+  `dstaddr` string,
+  `srcport` int,
+  `dstport` int,
+  `protocol` bigint,
+  `packets` bigint,
+  `bytes` bigint,
+  `start` bigint,
+  `end` bigint,
+  `action` string,
+  `log_status` string,
+  `pkt_src_aws_service` string,
+  `pkt_dst_aws_service` string,
+  `flow_direction` string,
+  `traffic_path` int,
+  `pkt_srcaddr` string,
+  `pkt_dstaddr` string
+)
+PARTITIONED BY (
+  `year` int,
+  `month` int,
+  `day` int,
+  `hour` int
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ' '
+STORED AS INPUTFORMAT
+  'org.apache.hadoop.mapred.TextInputFormat'
+OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION
+  '${S3_LOACATION}'
+TBLPROPERTIES (
+  'projection.day.digits'='2',
+  'projection.day.interval'='1',
+  'projection.day.range'='1,31',
+  'projection.day.type'='integer',
+  'projection.enabled'='true',
+  'projection.hour.digits'='2',
+  'projection.hour.interval'='1',
+  'projection.hour.range'='0,23',
+  'projection.hour.type'='integer',
+  'projection.month.digits'='2',
+  'projection.month.interval'='1',
+  'projection.month.range'='1,12',
+  'projection.month.type'='integer',
+  'projection.year.digits'='4',
+  'projection.year.interval'='1',
+  'projection.year.range'='2020,2120',
+  'projection.year.type'='integer',
+  'skip.header.line.count'='1',
+  'storage.location.template'='${S3_LOACATION}/${year}/${month}/${day}/${hour}'
+)
+```
+
+**Route53クエリログ**
+```sql
+CREATE EXTERNAL TABLE `querylogs`(
+  `version` string,
+  `account_id` string,
+  `region` string,
+  `vpc_id` string,
+  `query_timestamp` string,
+  `query_name` string,
+  `query_type` string,
+  `query_class` string,
+  `rcode` string,
+  `answers` array<struct<rdata:string,type:string,class:string>>,
+  `srcaddr` string,
+  `srcport` int,
+  `transport` string,
+  `srcids` struct<instance:string,resolver_endpoint:string>,
+  `firewall_rule_action` string,
+  `firewall_rule_group_id` string,
+  `firewall_domain_list_id` string
+)
+PARTITIONED BY (
+  `year` int,
+  `month` int,
+  `day` int
+)
+ROW FORMAT SERDE
+  'org.openx.data.jsonserde.JsonSerDe'
+STORED AS INPUTFORMAT
+  'org.apache.hadoop.mapred.TextInputFormat'
+OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION
+  '${S3_LOACATION}'
+TBLPROPERTIES (
+  'projection.day.digits'='2',
+  'projection.day.interval'='1',
+  'projection.day.range'='1,31',
+  'projection.day.type'='integer',
+  'projection.enabled'='true',
+  'projection.month.digits'='2',
+  'projection.month.interval'='1',
+  'projection.month.range'='1,12',
+  'projection.month.type'='integer',
+  'projection.year.digits'='4',
+  'projection.year.interval'='1',
+  'projection.year.range'='2020,2120',
+  'projection.year.type'='integer',
+  'skip.header.line.count'='1',
+  'storage.location.template'='${S3_LOACATION}/${year}/${month}/${day}'
+)
+```
 
 ### 調査1: AWS内の通信
-まずVPC内のリソースが、NAT Gatewayを経由して、AWSのサービスと通信するトラフィック量を確認します。以下のクエリをAthenaで実行し、通信先AWSサービスごとの通信量を分析します。
+VPC内のリソースが、NAT Gatewayを経由して、AWSのサービスと通信するトラフィック量を確認します。以下のクエリをAthenaで実行し、通信先AWSサービスごとの通信量を分析します。
 
-**VPC内部のリソースからNAT Gatewayを経由してAWSサービスに送信した通信量**
+**VPC内のリソースからNAT Gatewayを経由してAWSサービスに送信した通信量**
 ```sql
 SELECT
   pkt_dst_aws_service,
@@ -74,7 +190,7 @@ ORDER BY
   "Bytes/day" DESC
 ```
 
-**VPC内部のリソースがNAT Gatewayを経由してAWSサービスから受信した通信量**
+**VPC内のリソースがNAT Gatewayを経由してAWSサービスから受信した通信量**
 ```sql
   SUM(bytes) AS "Bytes/day",
   ROUND(SUM(bytes) * 30.0 / (1024 * 1024 * 1024)) AS "GB/month",
@@ -110,7 +226,7 @@ ORDER BY
 ### 調査2: AWS以外との通信
 次に、AWS以外の通信を調査します。VPCフローログでは通信先のIPしか分からないため、Route53クエリログを活用して通信先ドメインを特定します。
 
-**VPC内部のリソースからNAT Gatewayを経由して外部に送信した通信量**
+**VPC内のリソースからNAT Gatewayを経由して外部に送信した通信量**
 ```sql
 SELECT
   Q.query_name AS Domain,
@@ -150,7 +266,7 @@ ORDER BY
 ```
 
 
-**VPC内部のリソースがNATゲートウェイを経由して外部から受信した通信量**
+**VPC内のリソースがNATゲートウェイを経由して外部から受信した通信量**
 ```sql
 SELECT
   Q.query_name AS Domin,
@@ -210,8 +326,7 @@ ORDER BY
 | 10 | www.example.co.jp                     | 19,003,891,554  | 531.0    | 33.0    |
 
 ## NATゲートウェイの通信量削減案
-調査結果から、通信量を削減する案が無いか検討していきます。
-状況により対策案は様々だと思いますが、ここではいくつかの削減案の例を挙げさせていただきます。
+調査結果をもとに、通信量を削減する方法を検討します。状況によって対策は異なりますが、ここではいくつかの削減案を紹介します。
 
 ### 案1: VPCエンドポイントの作成
 `調査1: AWS内の通信`の`調査結果の例`を見ると、S3との通信が発生していることがわかります。
@@ -221,7 +336,7 @@ S3のVPCエンドポイントを作成することで、NATゲートウェイを
 
 ### 案2: 通信内部化
 `調査2: AWS以外の通信`の`調査結果の例`を見ると、1位が同じプロダクトのAPIであることがわかりました。
-以下の図のように、通信をVPC内部で完結するようにできれば、NATゲートウェイを経由しない経路にすることができます。
+以下の図のように、通信をVPC内で完結するようにできれば、NATゲートウェイを経由しない経路にすることができます。
 
 ![](./img/apiInternalALB.dio.svg)
 
@@ -259,7 +374,7 @@ ECRのプルスルーキャッシュを活用し、パブリックなコンテ�
 [Amazon ECRプルスルーキャッシュを使ってみた](https://developersblog.dmm.com/entry/2025/02/05/110000)
 
 ## まとめ
-VPCフローログとDNSクエリーログを活用することで、NAT Gatewayの通信内容をを詳細に分析し、コスト削減の施策を講じることが可能です。
-もし「EC2 - その他」の料金が高額になっている場合は、一度調査を行ってみてはいかがでしょうか。
+VPCフローログとRoute53クエリログを活用することで、NAT Gatewayの通信内容をを詳細に分析し、コスト削減の施策を講じることが可能です。
+もし「EC2-その他」の料金が高額になっている場合は、一度調査を行ってみてはいかがでしょうか。
 
 SRE部では、一緒に働く仲間を募集しています。ご興味のある方はこちらへ！
