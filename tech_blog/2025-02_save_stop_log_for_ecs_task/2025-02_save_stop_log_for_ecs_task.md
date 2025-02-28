@@ -58,7 +58,7 @@ resource "aws_iam_role_policy" "firehose" {
   role   = aws_iam_role.firehose.name
 }
 ```
-### 2. Event Bridge 用のIAMロールの作成
+### 2. Amazon EventBridge 用のIAMロールの作成
 ```terraform
 resource "aws_iam_role" "event_bridge" {
   name = "event-bridge-to-firehose-role"
