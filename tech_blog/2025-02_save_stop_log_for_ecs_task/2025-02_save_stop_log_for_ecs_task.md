@@ -1,48 +1,29 @@
-# ECSタスクの停止ログを残しましょう
+# ECSタスクの停止理由をログに残しましょう
 
 ## はじめに
 
 こんにちは。ITインフラ本部 SRE部のシュウです。
-本記事では、DMMブックスで実際に発生した障害の恒久対応の一環として、ECSタスクの停止ログを記録する方法についてご紹介します。
+本記事では、ECSタスクの停止ログを記録する方法についてご紹介します。
 
-## 背景
+## なぜECSタスクの停止理由をログとして保存するべきなのか？
+ECSタスクが起動できなかった際や、異常終了した際は、AWSコンソールから停止したタスクの詳細ページを開くと、下記の画像のように停止理由が表示されます。
+この例では `CannotPullImageManifestError` と表示されており、イメージの取得に失敗したことが原因であることがわかります。
 
-DMMブックスでは、トップページの新着枠に表示される内容をECSの「スケジュールされたタスク」機能を利用し、1分ごとにデータを更新しています。
-この処理が正常に動作しないと、新着枠の内容が更新されず、古い情報が表示されたままとなってしまいます。
+このように「イメージを取得できない」、「必要な権限が不足している」、「参照しているパラメータが存在しない」などの理由でECSタスクが終了した場合、
+AWSコンソールから理由を確認することができるが、アプリケーションはまだ起動していないため、アプリケーションのログには何も記録されません。
+しかし、この終了理由はデフォルトでは保存されず、少し時間が経過すると消えてしまいます。
 
-## 障害の発生原因
-
-コスト削減施策の一環として、アプリケーションを稼働させているECS FargateをAWS Gravitonに移行することを進めています。（2025年1月時点では、東京リージョンで約20%のコスト削減が可能です。）
-
-AWS Gravitonに移行することでコスト削減が可能ですが、CPUアーキテクチャがx86_64からarm64に変更されるため、アプリケーションもそれに対応する必要があります。
-
-ECS Fargate上で稼働しているアプリケーション自体は事前にarm64アーキテクチャに対応させていたため、問題なくAWS Gravitonへ切り替えられました。
-
-しかし、アプリケーションと同じECRのイメージを使用している「新着枠を更新するためのバッチ」に対する考慮が漏れていたため、バッチ用のECSタスク定義の変更が行われませんでした。その結果、x86_64アーキテクチャの環境上でarm64アーキテクチャ用にビルドされたイメージがデプロイされる形となりました。
-
-このため、インフラとイメージのCPUアーキテクチャが一致せず、ECSタスクが起動できずに再起動を繰り返す事象が発生しました。
-
-## 振り返り
-ポストモーテムを作成し、関係者と読み合わせを行った結果、ECSタスクが起動できなかったことにすぐに気付けなかったことが問題の一つとして挙げられました。
-
-ECSタスクがCloudWatch Logsに出力するログをトリガーにしてアラートを設定することも可能ですが、「ECRに必要なイメージが存在しない」「ECSタスクの起動に必要な権限が不足している」「参照しているパラメータが存在しない」など、ECSタスクが起動する前の段階でエラーが発生する場合もあります。その場合、そもそもログが出力されないため、アラートを設定することができません。
-
-したがって、アプリケーションのログだけでなく、ECSタスク自体の停止ログを記録することが重要であると考えました。
-
-## ECSタスクの停止ログをアラートに設定しよう
-AWSコンソールから停止したタスクの詳細ページを開くと、以下の画像のように停止理由が表示されます。しかし、この情報はデフォルトでは保存されず、時間が経過すると消えてしまいます。
-
-この停止理由を記録し、アラートを設定することで、万が一タスクが停止した際もその理由を把握することが可能になります。
+この停止理由をログとして保存して、アラートを設定することで、万が一タスクが想定外の理由で停止した際もその理由を把握することが可能になります。
 
 ![ecs-task-error-sample-01.png](./img/ecs-task-error-sample-01.png)
 
-## NewRelic & DataDog にECSタスクの停止ログを送信する
-ECSタスクのステータス変更はEventBridgeによって検知できるため、EventBridgeからKinesis Firehoseへ送信し、NewRelicやDataDogに停止ログを送信することが可能です。
+## New Relic や Datadog にECSタスクの停止ログを送信する方法
+ECSタスクのステータス変更はAmazon EventBridgeによって検知できるため、下記の構成図のように、Amazon EventBridgeからAmazon Data Firehoseを利用して、New RelicやDatadogに停止ログを送信することが可能です。
 
 ![infra.png](./img/infra.png)
 
 ## Terraformを使った実装例
-### Kinesis Firehose 用のIAMロールの作成
+### 1. Amazon Data Firehose 用のIAMロールの作成
 ```terraform
 resource "aws_iam_role" "firehose" {
   name = "ecs-task-stop-log-firehose-role"
@@ -78,7 +59,7 @@ resource "aws_iam_role_policy" "firehose" {
   role   = aws_iam_role.firehose.name
 }
 ```
-### Event Bridge 用のIAMロールの作成
+### 2. Event Bridge 用のIAMロールの作成
 ```terraform
 resource "aws_iam_role" "event_bridge" {
   name = "event-bridge-to-firehose-role"
@@ -108,10 +89,10 @@ resource "aws_iam_role_policy" "event_bridge" {
   policy = data.aws_iam_policy_document.event_bridge.json
 }
 ```
-### Kinesis Firehose の作成
-- NewRelic
+### 3. Amazon Data Firehose の作成
+- New Relic
   - ログ転送用エンドポイント: `https://aws-api.newrelic.com/firehose/v1`
-- DataDog
+- Datadog
   - ログ転送用エンドポイント: `https://aws-kinesis-http-intake.logs.datadoghq.com/v1/input`
 ```terraform
 resource "aws_kinesis_firehose_delivery_stream" "ecs_task_stop_log" {
@@ -120,9 +101,9 @@ resource "aws_kinesis_firehose_delivery_stream" "ecs_task_stop_log" {
   destination = "http_endpoint"
 
   http_endpoint_configuration {
-    url                = "<NewRelic or DataDog のログ転送用エンドポイント>"
-    name               = "<NewRelic or DataDog>"
-    access_key         = "<NewRelic or DataDog のAPIキー>"
+    url                = "<New Relic or Datadog のログ転送用エンドポイント>"
+    name               = "<New Relic or Datadog>"
+    access_key         = "<New Relic or Datadog のAPIキー>"
     buffering_size     = 1
     buffering_interval = 60
     role_arn           = aws_iam_role.firehose.arn
@@ -143,7 +124,7 @@ resource "aws_kinesis_firehose_delivery_stream" "ecs_task_stop_log" {
   }
 }
 ```
-### EventBridge の作成
+### 4. Amazon EventBridge の作成
 ```terraform
 resource "aws_cloudwatch_event_rule" "ecs_task_stop_rule" {
   name        = "ecs-task-stop-rule"
@@ -163,3 +144,13 @@ resource "aws_cloudwatch_event_target" "ecs_task_stop_log" {
   role_arn = aws_iam_role.event_bridge.arn
 }
 ```
+### 5. New Relic や Datadog にログが送信されたことを確認する
+正しく設定が完了していれば、New Relic や Datadog にECSタスクの停止ログが送信されるようになります。
+下記の画像は New Relic に送信されたログの一部です。
+ECSタスクがパラメータストアからパラメータを正しく取得できなかったため、タスクが停止したことがわかります。
+![newrelic-log-sample.png](./img/newrelic-log-sample.png)
+
+## まとめ
+ECSタスクの停止理由をログとして保存することで、ECSタスクが想定外の理由で停止した際もその理由を把握することが可能になります。
+本記事で紹介した方法を参考に、ECSタスクの停止ログを保存し、アラートを設定しておくことをおすすめします。
+
