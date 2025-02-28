@@ -20,8 +20,7 @@ AWSマネジメントコンソールから理由を確認することができ�
 ## New Relic や Datadog にECSタスクの停止ログを送信する方法
 ECSタスクのステータス変更はAmazon EventBridgeによって検知できるため、下記の構成図のように、Amazon EventBridgeからAmazon Data Firehoseを利用して、New RelicやDatadogに停止ログを送信することが可能です。
 
-![infra.png](./img/infra.png)
-
+![構成図.png](./img/構成図.png)
 ## Terraformを使った実装例
 ### 1. Amazon Data Firehose 用のIAMロールの作成
 ```terraform
